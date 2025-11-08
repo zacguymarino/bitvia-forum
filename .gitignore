@@ -1,0 +1,6 @@
+/target
+/db/*.db
+.env
+*.env
+*.cookie
+*.log

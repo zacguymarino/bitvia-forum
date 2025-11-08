@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BTC Explorer</title>
+    <link rel="stylesheet" href="/static/css/main.css" />
+  </head>
+  <body>
+    <!-- Top nav -->
+    <header class="nav">
+      <div class="nav__inner">
+        <div class="brand">
+          <span class="brand__name">BTC Explorer</span>
+        </div>
+        <nav class="nav__links">
+          <a href="/" aria-current="page">Home</a>
+          <!-- (Single page for now) -->
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- === Row 1: Network Pulse (3 cards, stack on mobile) === -->
+      <section class="grid">
+        <!-- Network -->
+        <article class="card">
+            <header class="card__head"><h2>Network</h2></header>
+            <div class="metric-row">
+            <div>
+                <div class="label">Height</div>
+                <div id="net-height" class="metric">—</div>
+            </div>
+            <div>
+                <div class="label">Avg Block Time</div>
+                <div id="net-interval" class="metric">—</div>
+            </div>
+            </div>
+        </article>
+
+        <!-- Mining -->
+        <article class="card">
+            <header class="card__head"><h2>Mining</h2></header>
+            <div class="metric-row">
+            <div>
+                <div class="label">
+                Difficulty
+                <span class="info-dot" title="How hard blocks are to find; retargets every 2016 blocks.">&#9432;</span>
+                </div>
+                <div id="net-difficulty" class="metric">—</div>
+            </div>
+            <div>
+                <div class="label">
+                Hashrate (est.)
+                <span class="info-dot" title="Estimated total network hashing power, from recent block pace.">&#9432;</span>
+                </div>
+                <div id="net-hashrate" class="metric">—</div>
+            </div>
+            </div>
+            <div class="sub">
+            Next adj in ~<span id="net-nextadj">—</span> blocks
+            • est change <span id="net-diffchg">—</span>
+            </div>
+        </article>
+
+        <!-- BTC Price -->
+        <article class="card" id="price-card">
+            <header class="card__head" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <h2 style="margin:0;">BTC Price</h2>
+            <label class="sub" style="display:flex;align-items:center;gap:6px;">
+                <span class="label" style="font-size:12px;">Fiat</span>
+                <select id="fiat-select">
+                <option value="USD" selected>USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                </select>
+            </label>
+            </header>
+            <div id="btc-price" class="metric">—</div>
+            <div class="sub">
+            <span id="btc-change">—</span> • <span id="btc-time">—</span>
+            </div>
+        </article>
+
+        <!-- Supply -->
+        <article class="card">
+            <header class="card__head"><h2>Supply</h2></header>
+            <div class="metric-row">
+            <div>
+                <div class="label">Subsidy</div>
+                <div id="net-subsidy" class="metric">—</div>
+            </div>
+            <div>
+                <div class="label">New/day</div>
+                <div id="net-newday" class="metric">—</div>
+            </div>
+            </div>
+            <footer class="card__foot sub">
+            Supply: <span id="net-supply">—</span> BTC
+            </footer>
+        </article>
+        <!-- Mempool -->
+        <article class="card">
+            <header class="card__head"><h2>Mempool</h2></header>
+            <div class="metric-row">
+                <div>
+                <div class="label">Tx Count</div>
+                <div id="mp-size" class="metric">—</div>
+                </div>
+                <div>
+                <div class="label">Bytes</div>
+                <div id="mp-bytes" class="metric">—</div>
+                </div>
+            </div>
+            <div class="sub">
+                Usage: <span id="mp-usage">—</span> • minFee: <span id="mp-minfee">—</span> sat/vB
+            </div>
+            <footer class="card__foot sub">
+                Full RBF: <span id="mp-rbf">—</span> • Unbroadcast: <span id="mp-unb">—</span>
+            </footer>
+        </article>
+      </section>
+
+      <!-- === Row 2: Explorer (search + latest blocks) === -->
+      <section class="section card" id="explorer">
+        <header class="card__head">
+          <h2>Explorer</h2>
+        </header>
+
+        <!-- Search -->
+        <form id="search-form" class="search">
+          <input id="search-input" class="search__input" type="text" autocomplete="off"
+                 placeholder="Search by block height, block hash (64 hex), or txid (64 hex)" />
+          <button class="search__btn" type="submit">Search</button>
+        </form>
+        <div class="sub" id="search-help">Tip: paste a 64-char hex to jump to a block or tx. Numbers are treated as heights.</div>
+
+        <!-- Results / Latest Blocks -->
+        <div class="explorer__cols">
+          <div class="explorer__col">
+            <h3 class="explorer__h3">Latest Blocks</h3>
+            <ul id="blocks-list" class="list"></ul>
+          </div>
+
+          <div class="explorer__col">
+            <h3 class="explorer__h3">Result</h3>
+            <div id="result" class="result">Enter a height/hash/txid to see details (tx view coming soon).</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Future: Trends / Charts section -->
+
+    </main>
+
+    <footer class="footer wrap sub">
+      © <span id="year"></span> BTC Explorer — running on Axum
+    </footer>
+
+    <script src="/static/js/main.js" defer></script>
+  </body>
+</html>
