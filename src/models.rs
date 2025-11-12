@@ -1,5 +1,19 @@
 use serde::{Deserialize, Serialize};
 
+/// Address balance stuff
+#[derive(serde::Deserialize)]
+pub struct AddrQ {
+    pub details: Option<bool>, // ?details=1 to include utxo list
+}
+
+#[derive(serde::Serialize)]
+pub struct AddrBalance {
+    pub address: String,
+    pub total_btc: f64,
+    pub utxo_count: usize,
+    pub utxos: Option<Vec<AddrUtxo>>,
+}
+
 /// Minimal header we read from `getblockheader`
 #[derive(Deserialize, Serialize)]
 pub struct BlockHeaderLite {
@@ -44,6 +58,21 @@ pub struct NetworkSummary {
     pub tip_time: u64,
 }
 
+#[derive(serde::Deserialize, serde::Serialize)]
+pub struct GetBlockV1 {
+    pub hash: String,
+    pub height: u64,
+    pub time: u64,
+    pub mediantime: Option<u64>,
+    pub size: u64,
+    pub weight: Option<u64>,
+    #[serde(rename = "nTx")]
+    pub n_tx: u64,
+    pub prevblockhash: Option<String>,
+    pub nextblockhash: Option<String>,
+    pub tx: Vec<String>, // <— txids only
+}
+
 /// `getblock` verbosity=2 (subset)
 #[derive(Deserialize, Serialize)]
 pub struct GetBlockV2 {
@@ -60,7 +89,21 @@ pub struct GetBlockV2 {
     pub tx: Vec<serde_json::Value>,
 }
 
-/// What we send to the UI for a block
+/// Response for `/api/blockhash/{height}`
+#[derive(Serialize)]
+pub struct BlockHashResp {
+    pub height: u64,
+    pub hash: String,
+}
+
+/// Query params for block tx pagination
+#[derive(Deserialize)]
+pub struct BlockPageQ {
+    pub offset: Option<usize>,
+    pub limit: Option<usize>,
+}
+
+/// What we send to the UI for a block (with pagination fields)
 #[derive(Serialize)]
 pub struct BlockView {
     pub hash: String,
@@ -72,14 +115,14 @@ pub struct BlockView {
     pub n_tx: u64,
     pub prev: Option<String>,
     pub next: Option<String>,
+
     pub txids: Vec<String>,
     pub more_tx: bool,
-}
 
-#[derive(Serialize)]
-pub struct BlockHashResp {
-    pub height: u64,
-    pub hash: String,
+    // paging meta
+    pub total_tx: usize,
+    pub offset: usize,
+    pub limit: usize,
 }
 
 /// `getrawtransaction` decoded (verbosity=true)
@@ -135,4 +178,44 @@ pub struct TxView {
 #[derive(Deserialize)]
 pub struct ResolveQ {
     pub resolve: Option<usize>,
+}
+
+#[derive(Serialize)]
+pub struct AddrBalanceResp {
+    pub address: String,
+    pub total_btc: f64,
+    pub confirmed_btc: f64,
+    pub unconfirmed_btc: f64,
+    pub utxos: Option<Vec<AddrUtxo>>, // present only if details=true
+    pub utxo_count: usize,
+}
+
+#[derive(Serialize)]
+pub struct AddrUtxo {
+    pub txid: String,
+    pub vout: u32,
+    pub amount_btc: f64,
+    pub height: Option<u32>,
+    pub script_pub_key: String,
+}
+
+#[derive(serde::Deserialize)]
+pub struct HistQ {
+    pub offset: Option<usize>,
+    pub limit: Option<usize>,
+}
+
+#[derive(serde::Serialize)]
+pub struct AddrHistoryItem {
+    pub txid: String,
+    pub height: i32, // <= 0 means unconfirmed (Electrs semantics)
+}
+
+#[derive(serde::Serialize)]
+pub struct AddrHistoryResp {
+    pub address: String,
+    pub total: usize,
+    pub offset: usize,
+    pub limit: usize,
+    pub items: Vec<AddrHistoryItem>,
 }

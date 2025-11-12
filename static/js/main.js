@@ -83,9 +83,9 @@ async function refreshNetwork() {
   chgEl.style.color = chg >= 0 ? "#2ecc71" : "#ff6b6b";
 
   // Supply & issuance
-  document.getElementById("net-subsidy").textContent   = fmtNumber(d.current_subsidy_btc, 8);
-  document.getElementById("net-newday").textContent    = fmtNumber(d.est_new_btc_per_day, 2);
-  document.getElementById("net-supply").textContent    = fmtNumber(d.est_circulating_btc, 6);
+  document.getElementById("net-subsidy").textContent = fmtNumber(d.current_subsidy_btc, 8);
+  document.getElementById("net-newday").textContent  = fmtNumber(d.est_new_btc_per_day, 2);
+  document.getElementById("net-supply").textContent  = fmtNumber(d.est_circulating_btc, 3);
 }
 
 // ----------------- Explorer: search + latest blocks -----------------
@@ -177,13 +177,13 @@ function timeAgo(tsSec) {
   return `${Math.floor(diff/86400)} d ago`;
 }
 
-async function showBlock(hash) {
-  const res = await getJSON(`/api/block/${hash}`);
+async function showBlock(hash, offset = 0, limit = 20) {
+  const res = await getJSON(`/api/block/${hash}?offset=${offset}&limit=${limit}`);
   const el = document.getElementById("result");
   if (!el) return;
   if (!res) { el.textContent = "Block not found."; return; }
 
-  lastBlockCtx = { hash: res.hash, height: res.height }; // <-- remember last block
+  lastBlockCtx = { hash: res.hash, height: res.height, limit }; // remember page size
 
   const when = timeAgo(res.time);
   const prevHtml = res.prev
@@ -193,36 +193,170 @@ async function showBlock(hash) {
     ? `Next: <button class="btn btn--sm" data-goto-block="${res.next}">Open</button> <span class="mono">${res.next}</span>`
     : ``;
 
-  const lines = [
-    `<div><strong>Block</strong> <span class="muted">height</span> ${res.height.toLocaleString()}</div>`,
-    `<div class="mono">${res.hash}</div>`,
-    `<div class="sub" style="margin-top:6px;">${when} • ${fmtNumber(res.size,0)} B • ${fmtNumber(res.weight??0,0)} WU • tx: ${fmtNumber(res.n_tx,0)}</div>`,
-    `<div class="sub" style="margin:6px 0;">${prevHtml}</div>`,
-    nextHtml ? `<div class="sub">${nextHtml}</div>` : ``,
-    `<h4 style="margin:10px 0 6px;">Transactions</h4>`,
-    `<ul class="list">` +
-      res.txids.map(t => `
-        <li class="list__item">
-          <div class="mono ellip">${t}</div>
-          <button class="btn btn--sm" data-tx="${t}">Open TX</button>
-        </li>
-      `).join("") +
-    `</ul>` +
-    (res.more_tx ? `<div class="sub">(+ more… not shown)</div>` : ``)
-  ];
+  // tx list
+  const txListHtml = res.txids.map(t => `
+    <li class="list__item">
+      <div class="mono ellip">${t}</div>
+      <button class="btn btn--sm" data-tx="${t}">Open TX</button>
+    </li>
+  `).join("");
 
-  el.innerHTML = `<div class="callout">${lines.join("")}</div>`;
+  // pager
+  const from = res.total_tx === 0 ? 0 : (res.offset + 1);
+  const to   = Math.min(res.offset + res.limit, res.total_tx);
+  const canPrev = res.offset > 0;
+  const canNext = (res.offset + res.limit) < res.total_tx;
+
+  const pagerHtml = `
+    <div class="sub" style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px;">
+      <div>Showing ${from.toLocaleString()}–${to.toLocaleString()} of ${res.total_tx.toLocaleString()}</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn--sm" id="pg-first" ${canPrev ? "" : "disabled"}>« First</button>
+        <button class="btn btn--sm" id="pg-prev"  ${canPrev ? "" : "disabled"}>‹ Prev</button>
+        <button class="btn btn--sm" id="pg-next"  ${canNext ? "" : "disabled"}>Next ›</button>
+        <button class="btn btn--sm" id="pg-last"  ${canNext ? "" : "disabled"}>Last »</button>
+      </div>
+    </div>
+  `;
+
+  // render
+  el.innerHTML = `
+    <div class="callout">
+      <div><strong>Block</strong> <span class="muted">height</span> ${res.height.toLocaleString()}</div>
+      <div class="mono">${res.hash}</div>
+      <div class="sub" style="margin-top:6px;">${when} • ${fmtNumber(res.size,0)} B • ${fmtNumber(res.weight??0,0)} WU • tx: ${fmtNumber(res.n_tx,0)}</div>
+      <div class="sub" style="margin:6px 0;">${prevHtml}</div>
+      ${nextHtml ? `<div class="sub">${nextHtml}</div>` : ``}
+
+      <h4 style="margin:10px 0 6px;">Transactions</h4>
+      <ul class="list">${txListHtml || `<li class="list__item">(no transactions)</li>`}</ul>
+      ${res.total_tx > res.limit ? pagerHtml : ``}
+    </div>
+  `;
   el.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  // Wire tx buttons
+  // wire tx buttons
   el.querySelectorAll("button[data-tx]").forEach(btn => {
     btn.addEventListener("click", () => showTx(btn.getAttribute("data-tx")));
   });
-  // Wire prev/next open
+
+  // wire block prev/next
   el.querySelectorAll("button[data-goto-block]").forEach(btn => {
-    btn.addEventListener("click", () => showBlock(btn.getAttribute("data-goto-block")));
+    btn.addEventListener("click", () => showBlock(btn.getAttribute("data-goto-block"), 0, lastBlockCtx?.limit ?? 20));
+  });
+
+  // wire pager
+  const pageSize = res.limit;
+  const total = res.total_tx;
+
+  const first = document.getElementById("pg-first");
+  const prev  = document.getElementById("pg-prev");
+  const next  = document.getElementById("pg-next");
+  const last  = document.getElementById("pg-last");
+
+  if (first) first.addEventListener("click", () => showBlock(hash, 0, pageSize));
+  if (prev)  prev.addEventListener("click",  () => showBlock(hash, Math.max(0, res.offset - pageSize), pageSize));
+  if (next)  next.addEventListener("click",  () => showBlock(hash, res.offset + pageSize, pageSize));
+  if (last)  last.addEventListener("click",  () => {
+    const remainder = total % pageSize;
+    const lastOffset = remainder === 0 ? Math.max(0, total - pageSize) : total - remainder;
+    showBlock(hash, lastOffset, pageSize);
   });
 }
+
+function satoshi(n) { return `${n.toLocaleString(undefined, { maximumFractionDigits: 8 })} BTC`; }
+
+function hookAddrLookup() {
+  const form = document.getElementById("addr-form");
+  const input = document.getElementById("addr-input");
+  const totalEl = document.getElementById("addr-total");
+  const countEl = document.getElementById("addr-count");
+  const listEl  = document.getElementById("addr-utxos");
+  if (!form || !input) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const addr = input.value.trim();
+    if (!addr) return;
+
+    totalEl.textContent = "…";
+    countEl.textContent = "…";
+    listEl.innerHTML = "";
+
+    const j = await getJSON(`/api/addr/${encodeURIComponent(addr)}?details=true`);
+    if (!j) { totalEl.textContent = "—"; countEl.textContent = "—"; listEl.textContent = "Lookup failed"; return; }
+
+    totalEl.textContent = j.total_btc != null ? j.total_btc.toLocaleString(undefined, { maximumFractionDigits: 8 }) + " BTC" : "0 BTC";
+    countEl.textContent = j.utxo_count ?? 0;
+
+    if (Array.isArray(j.utxos) && j.utxos.length) {
+      const rows = j.utxos.slice(0, 25).map(u => `
+        <div class="mono mono-wrap" style="margin:2px 0;">
+          ${u.txid} : ${u.vout} — ${u.amount_btc.toFixed(8)} BTC${u.height ? ` • h${u.height}` : ``}
+        </div>
+      `).join("");
+      listEl.innerHTML = rows + (j.utxos.length > 25 ? `<div class="sub">(+ more…)</div>` : ``);
+
+      document.getElementById("addr-clear-btn")?.classList.remove("hidden");
+      const histBtn = document.getElementById("addr-history-btn");
+      if (histBtn) {
+        histBtn.onclick = async () => {
+          await loadAddrHistory(addr, 0, 25);
+          document.getElementById("addr-clear-btn")?.classList.remove("hidden");
+        };
+      }
+    } else {
+      listEl.textContent = "(no UTXOs found)";
+      if (!j) {
+        totalEl.textContent = "—";
+        countEl.textContent = "—";
+        listEl.textContent = "Lookup failed";
+        document.getElementById("addr-clear-btn")?.classList.add("hidden");
+        return;
+      }
+    }
+  });
+}
+
+async function loadAddrHistory(addr, offset = 0, limit = 25) {
+  const j = await getJSON(`/api/addr/${encodeURIComponent(addr)}/history?offset=${offset}&limit=${limit}`);
+  const histEl = document.getElementById("addr-history");
+  if (!histEl) return;
+  if (!j) { histEl.textContent = "History lookup failed."; return; }
+
+  if (!Array.isArray(j.items) || j.items.length === 0) {
+    histEl.textContent = "(no history)";
+    return;
+  }
+  const rows = j.items.map(it => `
+    <div class="mono mono-wrap" style="margin:2px 0;">
+      ${it.txid} ${it.height > 0 ? `• h${it.height}` : `• mempool`}
+      <button class="btn btn--sm" data-open-tx="${it.txid}" style="margin-left:6px;">Open TX</button>
+    </div>
+  `).join("");
+  histEl.innerHTML = rows;
+
+  histEl.querySelectorAll("button[data-open-tx]").forEach(btn => {
+    btn.addEventListener("click", () => showTx(btn.getAttribute("data-open-tx")));
+  });
+}
+
+function clearAddrWidget() {
+  const input   = document.getElementById("addr-input");
+  const totalEl = document.getElementById("addr-total");
+  const countEl = document.getElementById("addr-count");
+  const listEl  = document.getElementById("addr-utxos");
+  const histEl  = document.getElementById("addr-history");
+  const clearBtn = document.getElementById("addr-clear-btn");
+
+  if (input)   input.value = "";
+  if (totalEl) totalEl.textContent = "—";
+  if (countEl) countEl.textContent = "—";
+  if (listEl)  listEl.innerHTML = "";
+  if (histEl)  histEl.innerHTML = "";
+  if (clearBtn) clearBtn.classList.add("hidden");
+}
+
 
 async function showTx(txid, resolveN = 20) {
   const res = await getJSON(`/api/tx/${txid}?resolve=${resolveN}`);
@@ -396,11 +530,15 @@ function start() {
   refreshMempool();
   loadLatestBlocks(10);
   hookSearch();
+  hookAddrLookup();
 
   // gentle polling for Pi performance
   setInterval(refreshNetwork, 15000);
   setInterval(refreshMempool, 10000);
   setInterval(() => loadLatestBlocks(10), 30000);
+
+  const clearBtn = document.getElementById("addr-clear-btn");
+  if (clearBtn) clearBtn.addEventListener("click", clearAddrWidget);
 
   price_start();
 }

@@ -85,19 +85,22 @@
         <!-- Supply -->
         <article class="card">
             <header class="card__head"><h2>Supply</h2></header>
-            <div class="metric-row">
+
             <div>
-                <div class="label">Subsidy</div>
-                <div id="net-subsidy" class="metric">—</div>
+                <div class="label">Circulating Supply</div>
+                <div id="net-supply" class="metric metric--big">—</div>
             </div>
-            <div>
-                <div class="label">New/day</div>
-                <div id="net-newday" class="metric">—</div>
+
+            <div class="metric-row" style="margin-top:8px;">
+                <div>
+                <div class="label">Block Subsidy</div>
+                <div id="net-subsidy" class="metric sub">—</div>
+                </div>
+                <div>
+                <div class="label">New / day</div>
+                <div id="net-newday" class="metric sub">—</div>
+                </div>
             </div>
-            </div>
-            <footer class="card__foot sub">
-            Supply: <span id="net-supply">—</span> BTC
-            </footer>
         </article>
         <!-- Mempool -->
         <article class="card">
@@ -118,6 +121,34 @@
             <footer class="card__foot sub">
                 Full RBF: <span id="mp-rbf">—</span> • Unbroadcast: <span id="mp-unb">—</span>
             </footer>
+        </article>
+        <!-- Address Balance -->
+        <article class="card">
+            <header class="card__head"><h2>Address Balance</h2></header>
+            <form id="addr-form" class="search" style="margin-bottom:8px;">
+                <input id="addr-input" class="search__input" type="text" autocomplete="off"
+                    placeholder="Paste a Bitcoin address (bc1..., 3..., 1...)" />
+                <button class="search__btn" type="submit">Lookup</button>
+            </form>
+            <div class="sub" id="addr-note">Checks current UTXO set via bitvia's node.</div>
+            <div class="metric-row">
+                <div>
+                <div class="label">Total</div>
+                <div id="addr-total" class="metric">—</div>
+                </div>
+                <div>
+                <div class="label">UTXOs</div>
+                <div id="addr-count" class="metric">—</div>
+                </div>
+            </div>
+            <div id="addr-utxos" class="sub" style="margin-top:8px;"></div>
+            <div style="margin-top:8px;">
+              <div style="margin-top:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                <button class="btn btn--sm" id="addr-history-btn">Load History</button>
+                <button class="btn btn--sm hidden" id="addr-clear-btn">Clear</button>
+              </div>
+              <div id="addr-history" class="sub" style="margin-top:6px;"></div>
+            </div>
         </article>
       </section>
 
