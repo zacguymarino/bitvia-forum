@@ -73,22 +73,6 @@ pub struct GetBlockV1 {
     pub tx: Vec<String>, // <— txids only
 }
 
-/// `getblock` verbosity=2 (subset)
-#[derive(Deserialize, Serialize)]
-pub struct GetBlockV2 {
-    pub hash: String,
-    pub height: u64,
-    pub time: u64,
-    pub mediantime: Option<u64>,
-    pub size: u64,
-    pub weight: Option<u64>,
-    #[serde(rename = "nTx")]
-    pub n_tx: u64,
-    pub prevblockhash: Option<String>,
-    pub nextblockhash: Option<String>,
-    pub tx: Vec<serde_json::Value>,
-}
-
 /// Response for `/api/blockhash/{height}`
 #[derive(Serialize)]
 pub struct BlockHashResp {
@@ -178,16 +162,6 @@ pub struct TxView {
 #[derive(Deserialize)]
 pub struct ResolveQ {
     pub resolve: Option<usize>,
-}
-
-#[derive(Serialize)]
-pub struct AddrBalanceResp {
-    pub address: String,
-    pub total_btc: f64,
-    pub confirmed_btc: f64,
-    pub unconfirmed_btc: f64,
-    pub utxos: Option<Vec<AddrUtxo>>, // present only if details=true
-    pub utxo_count: usize,
 }
 
 #[derive(Serialize)]

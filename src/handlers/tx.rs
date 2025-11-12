@@ -11,12 +11,8 @@ use crate::{
     models::{PrevoutResolved, ResolveQ, TxDecoded, TxView},
     rpc::rpc_call,
     state::AppState,
-    utils::{internalize, tx_is_coinbase, vout_address, vout_value_btc},
+    utils::{internalize, tx_is_coinbase, vout_value_btc},
 };
-
-fn sats_to_btc(s: u64) -> f64 {
-    (s as f64) / 100_000_000.0
-}
 
 use std::str::FromStr;
 

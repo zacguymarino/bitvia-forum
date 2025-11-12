@@ -119,7 +119,7 @@ async function loadLatestBlocks(n = 10) {
 
   list.innerHTML = items.map(it => `
     <li class="list__item">
-      <div class="mono ellip">${it.hash}</div>
+      <div class="mono mono-wrap">${it.hash}</div>
       <div class="muted">Height ${it.height.toLocaleString()}</div>
       <button class="btn btn--sm" data-hash="${it.hash}" data-height="${it.height}">Open</button>
     </li>
@@ -196,7 +196,7 @@ async function showBlock(hash, offset = 0, limit = 20) {
   // tx list
   const txListHtml = res.txids.map(t => `
     <li class="list__item">
-      <div class="mono ellip">${t}</div>
+      <div class="mono mono-wrap">${t}</div>
       <button class="btn btn--sm" data-tx="${t}">Open TX</button>
     </li>
   `).join("");
@@ -263,8 +263,6 @@ async function showBlock(hash, offset = 0, limit = 20) {
     showBlock(hash, lastOffset, pageSize);
   });
 }
-
-function satoshi(n) { return `${n.toLocaleString(undefined, { maximumFractionDigits: 8 })} BTC`; }
 
 function hookAddrLookup() {
   const form = document.getElementById("addr-form");

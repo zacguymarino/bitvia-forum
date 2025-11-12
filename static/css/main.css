@@ -98,8 +98,6 @@ html { scroll-padding-top: 60px; }           /* global offset */
 }
 
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; }
-.ellip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
 
 /* add this near your other utilities */
 .mono-wrap {
