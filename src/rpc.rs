@@ -53,7 +53,7 @@ pub async fn rpc_call<T: DeserializeOwned>(
     if let Some(err) = body.error {
         return Err(anyhow::anyhow!("rpc error {}: {}", err.code, err.message));
     }
-    Ok(body
+    body
         .result
-        .ok_or_else(|| anyhow::anyhow!("rpc response missing result"))?)
+        .ok_or_else(|| anyhow::anyhow!("rpc response missing result"))
 }
