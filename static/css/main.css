@@ -110,5 +110,34 @@ html { scroll-padding-top: 60px; }           /* global offset */
 
 .hidden { display: none !important; }
 
+.txstatus-status--confirmed {
+  color: #2ecc71; /* green */
+}
+
+.txstatus-status--mempool {
+  color: #f1c40f; /* yellow */
+}
+
+.txstatus-status--unknown {
+  color: #999;
+}
+
+.txstatus-status--error {
+  color: #ff6b6b;
+}
+
+.addr-amount--in {
+  color: #2ecc71; /* green for incoming */
+}
+
+.addr-amount--out {
+  color: #ff6b6b; /* red for outgoing */
+}
+
+.addr-amount--self {
+  color: #f1c40f; /* yellow for self-transfer / net zero */
+}
+
+
 /* Footer */
 .footer { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 10px; }

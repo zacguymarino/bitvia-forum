@@ -152,6 +152,33 @@
         </article>
       </section>
 
+      <section class="card">
+        <header class="card__head">Transaction status</header>
+        <p class="sub">
+          Check whether a transaction ID is confirmed, in this node's mempool, or unseen.
+        </p>
+
+        <form id="txstatus-form" class="form-inline" autocomplete="off">
+          <input
+            id="txstatus-input"
+            type="text"
+            class="input input--full mono mono-wrap"
+            placeholder="Paste transaction ID (64-char hex)"
+          />
+          <button type="submit" class="btn">Check</button>
+        </form>
+
+        <div id="txstatus-output" class="sub" style="margin-top:6px;"></div>
+
+        <button
+          id="txstatus-open-btn"
+          class="btn btn--sm hidden"
+          style="margin-top:6px;"
+        >
+          Open transaction details
+        </button>
+      </section>
+
       <!-- === Row 2: Explorer (search + latest blocks) === -->
       <section class="section card" id="explorer">
         <header class="card__head">

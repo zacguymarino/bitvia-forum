@@ -182,7 +182,12 @@ pub struct HistQ {
 #[derive(serde::Serialize)]
 pub struct AddrHistoryItem {
     pub txid: String,
-    pub height: i32, // <= 0 means unconfirmed (Electrs semantics)
+    pub height: i32,
+    pub timestamp: Option<u64>,
+    pub direction: String,
+    pub delta_btc: f64,
+    pub value_in_btc: f64,
+    pub value_out_btc: f64,
 }
 
 #[derive(serde::Serialize)]
