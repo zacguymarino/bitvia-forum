@@ -97,9 +97,6 @@ html { scroll-padding-top: 60px; }           /* global offset */
   border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: #121215;
 }
 
-.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; }
-
-/* add this near your other utilities */
 .mono-wrap {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: 12px;

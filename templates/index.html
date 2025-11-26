@@ -23,6 +23,25 @@
     <main class="wrap">
       <!-- === Row 1: Network Pulse (3 cards, stack on mobile) === -->
       <section class="grid">
+        <!-- BTC Price -->
+        <article class="card" id="price-card">
+            <header class="card__head" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <h2 style="margin:0;">BTC Price</h2>
+            <label class="sub" style="display:flex;align-items:center;gap:6px;">
+                <span class="label" style="font-size:12px;">Fiat</span>
+                <select id="fiat-select">
+                <option value="USD" selected>USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                </select>
+            </label>
+            </header>
+            <div id="btc-price" class="metric">—</div>
+            <div class="sub">
+            <span id="btc-change">—</span> • <span id="btc-time">—</span>
+            </div>
+        </article>
+        
         <!-- Network -->
         <article class="card">
             <header class="card__head"><h2>Network</h2></header>
@@ -63,25 +82,6 @@
             </div>
         </article>
 
-        <!-- BTC Price -->
-        <article class="card" id="price-card">
-            <header class="card__head" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-            <h2 style="margin:0;">BTC Price</h2>
-            <label class="sub" style="display:flex;align-items:center;gap:6px;">
-                <span class="label" style="font-size:12px;">Fiat</span>
-                <select id="fiat-select">
-                <option value="USD" selected>USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-                </select>
-            </label>
-            </header>
-            <div id="btc-price" class="metric">—</div>
-            <div class="sub">
-            <span id="btc-change">—</span> • <span id="btc-time">—</span>
-            </div>
-        </article>
-
         <!-- Supply -->
         <article class="card">
             <header class="card__head"><h2>Supply</h2></header>
@@ -102,6 +102,7 @@
                 </div>
             </div>
         </article>
+
         <!-- Mempool -->
         <article class="card">
             <header class="card__head"><h2>Mempool</h2></header>
@@ -122,6 +123,7 @@
                 Full RBF: <span id="mp-rbf">—</span> • Unbroadcast: <span id="mp-unb">—</span>
             </footer>
         </article>
+
         <!-- Address Balance -->
         <article class="card">
             <header class="card__head"><h2>Address Balance</h2></header>
@@ -152,24 +154,24 @@
         </article>
       </section>
 
-      <section class="card">
-        <header class="card__head">Transaction status</header>
+      <!-- Transaction Status -->
+      <section class="section card">
+        <header class="card__head">
+          <h2>Transaction status</h2>
+        </header>
         <p class="sub">
           Check whether a transaction ID is confirmed, in this node's mempool, or unseen.
         </p>
-
-        <form id="txstatus-form" class="form-inline" autocomplete="off">
+        <form id="txstatus-form" class="search" autocomplete="off">
           <input
             id="txstatus-input"
             type="text"
-            class="input input--full mono mono-wrap"
+            class="search__input mono-wrap"
             placeholder="Paste transaction ID (64-char hex)"
           />
-          <button type="submit" class="btn">Check</button>
+          <button type="submit" class="search__btn">Check</button>
         </form>
-
         <div id="txstatus-output" class="sub" style="margin-top:6px;"></div>
-
         <button
           id="txstatus-open-btn"
           class="btn btn--sm hidden"
@@ -178,6 +180,7 @@
           Open transaction details
         </button>
       </section>
+
 
       <!-- === Row 2: Explorer (search + latest blocks) === -->
       <section class="section card" id="explorer">
