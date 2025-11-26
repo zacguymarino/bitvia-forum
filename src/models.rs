@@ -1,19 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/// Address balance stuff
-#[derive(serde::Deserialize)]
-pub struct AddrQ {
-    pub details: Option<bool>, // ?details=1 to include utxo list
-}
-
-#[derive(serde::Serialize)]
-pub struct AddrBalance {
-    pub address: String,
-    pub total_btc: f64,
-    pub utxo_count: usize,
-    pub utxos: Option<Vec<AddrUtxo>>,
-}
-
 /// Minimal header we read from `getblockheader`
 #[derive(Deserialize, Serialize)]
 pub struct BlockHeaderLite {
@@ -162,39 +148,4 @@ pub struct TxView {
 #[derive(Deserialize)]
 pub struct ResolveQ {
     pub resolve: Option<usize>,
-}
-
-#[derive(Serialize)]
-pub struct AddrUtxo {
-    pub txid: String,
-    pub vout: u32,
-    pub amount_btc: f64,
-    pub height: Option<u32>,
-    pub script_pub_key: String,
-}
-
-#[derive(serde::Deserialize)]
-pub struct HistQ {
-    pub offset: Option<usize>,
-    pub limit: Option<usize>,
-}
-
-#[derive(serde::Serialize)]
-pub struct AddrHistoryItem {
-    pub txid: String,
-    pub height: i32,
-    pub timestamp: Option<u64>,
-    pub direction: String,
-    pub delta_btc: f64,
-    pub value_in_btc: f64,
-    pub value_out_btc: f64,
-}
-
-#[derive(serde::Serialize)]
-pub struct AddrHistoryResp {
-    pub address: String,
-    pub total: usize,
-    pub offset: usize,
-    pub limit: usize,
-    pub items: Vec<AddrHistoryItem>,
 }

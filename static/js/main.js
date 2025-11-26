@@ -412,158 +412,6 @@ async function showBlock(hash, offset = 0, limit = 20) {
 }
 
 // ============================================================
-// Address balance + UTXO + history widget
-// ============================================================
-
-/**
- * Wire up the address lookup form:
- * - Query /api/addr/{address}?details=true
- * - Render total balance + first 25 UTXOs
- * - Enable "history" and "clear" buttons
- */
-function hookAddrLookup() {
-  const form = document.getElementById("addr-form");
-  const input = document.getElementById("addr-input");
-  const totalEl = document.getElementById("addr-total");
-  const countEl = document.getElementById("addr-count");
-  const listEl = document.getElementById("addr-utxos");
-  if (!form || !input) return;
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const addr = input.value.trim();
-    if (!addr) return;
-
-    totalEl.textContent = "…";
-    countEl.textContent = "…";
-    listEl.innerHTML = "";
-
-    const j = await getJSON(`/api/addr/${encodeURIComponent(addr)}?details=true`);
-    if (!j) {
-      totalEl.textContent = "—";
-      countEl.textContent = "—";
-      listEl.textContent = "Lookup failed";
-      return;
-    }
-
-    // Summary
-    totalEl.textContent =
-      j.total_btc != null
-        ? j.total_btc.toLocaleString(undefined, { maximumFractionDigits: 8 }) + " BTC"
-        : "0 BTC";
-    countEl.textContent = j.utxo_count ?? 0;
-
-    // UTXO list (first 25)
-    if (Array.isArray(j.utxos) && j.utxos.length) {
-      const rows = j.utxos
-        .slice(0, 25)
-        .map(
-          (u) => `
-          <div class="mono-wrap" style="margin:2px 0;">
-            ${u.txid} : ${u.vout} — ${u.amount_btc.toFixed(8)} BTC${u.height ? ` • h${u.height}` : ``}
-          </div>
-        `
-        )
-        .join("");
-      listEl.innerHTML =
-        rows + (j.utxos.length > 25 ? `<div class="sub">(+ more…)</div>` : ``);
-
-      // Show "clear" button
-      document.getElementById("addr-clear-btn")?.classList.remove("hidden");
-
-      // History button
-      const histBtn = document.getElementById("addr-history-btn");
-      if (histBtn) {
-        histBtn.onclick = async () => {
-          await loadAddrHistory(addr, 0, 25);
-          document.getElementById("addr-clear-btn")?.classList.remove("hidden");
-        };
-      }
-    } else {
-      listEl.textContent = "(no UTXOs found)";
-    }
-  });
-}
-
-async function loadAddrHistory(addr, offset = 0, limit = 25) {
-  const j = await getJSON(`/api/addr/${encodeURIComponent(addr)}/history?offset=${offset}&limit=${limit}`);
-  const histEl = document.getElementById("addr-history");
-  if (!histEl) return;
-
-  if (!j) {
-    histEl.textContent = "History lookup failed.";
-    return;
-  }
-
-  if (!Array.isArray(j.items) || j.items.length === 0) {
-    histEl.textContent = "(no history)";
-    return;
-  }
-
-  const rows = j.items.map((it) => {
-    const amount = typeof it.delta_btc === "number" ? it.delta_btc : 0;
-    const dir = it.direction || (amount > 0 ? "in" : amount < 0 ? "out" : "unknown");
-
-    const sign = amount > 0 ? "+" : amount < 0 ? "−" : "";
-    const absAmt = Math.abs(amount);
-    const amtStr = absAmt
-      ? `${sign}${absAmt.toFixed(8)} BTC`
-      : "0 BTC";
-
-    const statusStr = it.height > 0
-      ? `confirmed • h${(it.height || 0).toLocaleString?.() ?? it.height}`
-      : "mempool";
-
-    const whenStr = it.timestamp
-      ? timeAgo(it.timestamp)  // timestamp is seconds since epoch
-      : "";
-
-    const rightBits = [statusStr, whenStr].filter(Boolean).join(" • ");
-
-    let amountClass = "";
-    if (dir === "in") amountClass = "addr-amount--in";
-    else if (dir === "out") amountClass = "addr-amount--out";
-    else if (dir === "self") amountClass = "addr-amount--self";
-
-    return `
-      <div class="list__item">
-        <div class="sub ${amountClass}">${amtStr}</div>
-        <div class="mono-wrap">${it.txid}</div>
-        <div class="sub">${rightBits}</div>
-        <button class="btn btn--sm" data-open-tx="${it.txid}" style="margin-top:4px;">Open TX</button>
-      </div>
-    `;
-  }).join("");
-
-  histEl.innerHTML = rows;
-
-  // Hook "Open TX" buttons
-  histEl.querySelectorAll("button[data-open-tx]").forEach((btn) => {
-    btn.addEventListener("click", () => showTx(btn.getAttribute("data-open-tx")));
-  });
-}
-
-
-/**
- * Clear all address widget state (input, utxos, history, etc).
- */
-function clearAddrWidget() {
-  const input = document.getElementById("addr-input");
-  const totalEl = document.getElementById("addr-total");
-  const countEl = document.getElementById("addr-count");
-  const listEl = document.getElementById("addr-utxos");
-  const histEl = document.getElementById("addr-history");
-  const clearBtn = document.getElementById("addr-clear-btn");
-
-  if (input) input.value = "";
-  if (totalEl) totalEl.textContent = "—";
-  if (countEl) countEl.textContent = "—";
-  if (listEl) listEl.innerHTML = "";
-  if (histEl) histEl.innerHTML = "";
-  if (clearBtn) clearBtn.classList.add("hidden");
-}
-
-// ============================================================
 // Transaction view
 // ============================================================
 
@@ -965,17 +813,12 @@ function start() {
   refreshMempool();
   loadLatestBlocks(10);
   hookSearch();
-  hookAddrLookup();
   hookTxStatusWidget();
 
   // Gentle polling intervals (respecting Pi resources)
   setInterval(refreshNetwork, 15000);
   setInterval(refreshMempool, 10000);
   setInterval(() => loadLatestBlocks(10), 30000);
-
-  // Address clear button
-  const clearBtn = document.getElementById("addr-clear-btn");
-  if (clearBtn) clearBtn.addEventListener("click", clearAddrWidget);
 
   // Start BTC price stream
   price_start();

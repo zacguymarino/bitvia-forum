@@ -41,7 +41,7 @@
             <span id="btc-change">—</span> • <span id="btc-time">—</span>
             </div>
         </article>
-        
+
         <!-- Network -->
         <article class="card">
             <header class="card__head"><h2>Network</h2></header>
@@ -124,63 +124,37 @@
             </footer>
         </article>
 
-        <!-- Address Balance -->
-        <article class="card">
-            <header class="card__head"><h2>Address Balance</h2></header>
-            <form id="addr-form" class="search" style="margin-bottom:8px;">
-                <input id="addr-input" class="search__input" type="text" autocomplete="off"
-                    placeholder="Paste a Bitcoin address (bc1..., 3..., 1...)" />
-                <button class="search__btn" type="submit">Lookup</button>
-            </form>
-            <div class="sub" id="addr-note">Checks current UTXO set via bitvia's node.</div>
-            <div class="metric-row">
-                <div>
-                <div class="label">Total</div>
-                <div id="addr-total" class="metric">—</div>
-                </div>
-                <div>
-                <div class="label">UTXOs</div>
-                <div id="addr-count" class="metric">—</div>
-                </div>
-            </div>
-            <div id="addr-utxos" class="sub" style="margin-top:8px;"></div>
-            <div style="margin-top:8px;">
-              <div style="margin-top:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-                <button class="btn btn--sm" id="addr-history-btn">Load History</button>
-                <button class="btn btn--sm hidden" id="addr-clear-btn">Clear</button>
-              </div>
-              <div id="addr-history" class="sub" style="margin-top:6px;"></div>
-            </div>
+        <!-- Transaction Status (moved into grid) -->
+        <article class="card" id="txstatus-card">
+          <header class="card__head">
+            <h2>Transaction status</h2>
+          </header>
+
+          <p class="sub">
+            Check whether a transaction ID is confirmed, in this node's mempool, or unseen.
+          </p>
+
+          <form id="txstatus-form" class="search" autocomplete="off">
+            <input
+              id="txstatus-input"
+              type="text"
+              class="search__input mono-wrap"
+              placeholder="Paste transaction ID (64-char hex)"
+            />
+            <button type="submit" class="search__btn">Check</button>
+          </form>
+
+          <div id="txstatus-output" class="sub" style="margin-top:6px;"></div>
+
+          <button
+            id="txstatus-open-btn"
+            class="btn btn--sm hidden"
+            style="margin-top:6px;"
+          >
+            Open transaction details
+          </button>
         </article>
       </section>
-
-      <!-- Transaction Status -->
-      <section class="section card">
-        <header class="card__head">
-          <h2>Transaction status</h2>
-        </header>
-        <p class="sub">
-          Check whether a transaction ID is confirmed, in this node's mempool, or unseen.
-        </p>
-        <form id="txstatus-form" class="search" autocomplete="off">
-          <input
-            id="txstatus-input"
-            type="text"
-            class="search__input mono-wrap"
-            placeholder="Paste transaction ID (64-char hex)"
-          />
-          <button type="submit" class="search__btn">Check</button>
-        </form>
-        <div id="txstatus-output" class="sub" style="margin-top:6px;"></div>
-        <button
-          id="txstatus-open-btn"
-          class="btn btn--sm hidden"
-          style="margin-top:6px;"
-        >
-          Open transaction details
-        </button>
-      </section>
-
 
       <!-- === Row 2: Explorer (search + latest blocks) === -->
       <section class="section card" id="explorer">

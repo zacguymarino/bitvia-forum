@@ -45,8 +45,6 @@ async fn main() -> Result<()> {
         .route("/api/blockhash/{height}", get(handlers::blocks::blockhash_by_height))
         .route("/api/block/{hash}", get(handlers::blocks::block_by_hash))
         .route("/api/tx/{txid}", get(handlers::tx::tx_by_id))
-        .route("/api/addr/{address}", get(handlers::address::addr_balance))
-        .route("/api/addr/{address}/history", get(handlers::address::addr_history))
         // static
         .nest_service("/static", ServeDir::new("static"))
         // shared state
