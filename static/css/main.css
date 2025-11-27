@@ -18,6 +18,7 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: system
 /* Nav */
 .nav { position: sticky; top: 0; background: rgba(12,12,14,.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(6px); z-index: 10; }
 .nav__inner { max-width: var(--wrap); margin: 0 auto; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; }
+.brand {display: flex; align-items: center;}
 .brand__name { font-weight: 700; letter-spacing: .2px; color: var(--brand); }
 .nav__links a { color: var(--muted); text-decoration: none; margin-left: 14px; }
 .nav__links a[aria-current="page"] { color: var(--text); }
